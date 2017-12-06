@@ -1,0 +1,109 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="dummy"
+        android:inputType="text"
+        android:key="remote_username"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Username" />
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="dummy"
+        android:inputType="textPassword"
+        android:key="remote_password"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Password" />
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="0.0.0.0"
+        android:inputType="text"
+        android:key="remote_addr"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Server address" />
+        <!-- android:dependency="dropbox_get_remote_addr" TODO -->
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="9999"
+        android:inputType="number"
+        android:key="remote_https_port"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Server HTTPS port" />
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="9998"
+        android:inputType="number"
+        android:key="remote_http_port"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Server HTTP port" />
+
+    <!--<SwitchPreference-->
+        <!--android:defaultValue="false"-->
+        <!--android:key="dropbox_get_remote_addr"-->
+        <!--android:summary="Use a dropbox account to get the server's ip address"-->
+        <!--android:title="Enable dropbox support" />-->
+
+    <!--&lt;!&ndash; NOTE: EditTextPreference accepts EditText attributes. &ndash;&gt;-->
+    <!--&lt;!&ndash; NOTE: EditTextPreference's summary should be set to its value by the activity code. &ndash;&gt;-->
+    <!--<EditTextPreference-->
+        <!--android:capitalize="words"-->
+        <!--android:defaultValue="-&#45;&#45;"-->
+        <!--android:inputType="textCapWords"-->
+        <!--android:key="dropbox_username"-->
+        <!--android:maxLines="1"-->
+        <!--android:selectAllOnFocus="true"-->
+        <!--android:singleLine="true"-->
+        <!--android:title="Dropbox username"-->
+        <!--android:dependency="dropbox_get_remote_addr"/>-->
+
+    <!--<EditTextPreference-->
+        <!--android:capitalize="words"-->
+        <!--android:defaultValue="-&#45;&#45;"-->
+        <!--android:inputType="textCapWords"-->
+        <!--android:key="dropbox_password"-->
+        <!--android:maxLines="1"-->
+        <!--android:selectAllOnFocus="true"-->
+        <!--android:singleLine="true"-->
+        <!--android:title="Dropbox password"-->
+        <!--android:dependency="dropbox_get_remote_addr"/>-->
+
+    <!--<EditTextPreference-->
+        <!--android:capitalize="words"-->
+        <!--android:defaultValue="-&#45;&#45;"-->
+        <!--android:inputType="textCapWords"-->
+        <!--android:key="dropbox_file"-->
+        <!--android:maxLines="1"-->
+        <!--android:selectAllOnFocus="true"-->
+        <!--android:singleLine="true"-->
+        <!--android:title="Dropbox filename"-->
+        <!--android:dependency="dropbox_get_remote_addr"/>-->
+
+    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+         dismiss it. -->
+    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+    <!--
+    <ListPreference
+        android:defaultValue="-1"
+        android:entries="@array/pref_example_list_titles"
+        android:entryValues="@array/pref_example_list_values"
+        android:key="example_list"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_add_friends_to_messages" />
+    -->
+
+</PreferenceScreen>

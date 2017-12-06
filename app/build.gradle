@@ -1,0 +1,55 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "24.0.1"
+
+    defaultConfig {
+        applicationId "com.panni.mymusicplayer2"
+        minSdkVersion 18
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        // TODO -> cannot enable minify! Proguard deletes contextmenu code
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
+
+    compile "com.android.support:mediarouter-v7:24.1.1"
+    compile 'com.android.support:appcompat-v7:24.1.1'
+
+    // Cast companion library
+    compile 'com.android.support:design:24.1.1'
+    compile 'com.android.support:support-v4:24.1.1'
+    compile 'com.google.android.libraries.cast.companionlibrary:ccl:2.8.4'
+
+    // ExoPlayer
+    //compile 'com.google.android.exoplayer:exoplayer:r1.5.9'
+    compile project(':library-release_1.5.9')
+    compile project(':extension-flac-release_1.5.9')
+
+    // Gif viewer
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.17'
+
+    // Retrofit http client http://square.github.io/retrofit/
+    //compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    //compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+
+    // okhttp
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+}

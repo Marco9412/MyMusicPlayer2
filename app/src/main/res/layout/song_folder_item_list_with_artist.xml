@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:id="@+id/item_image_list"
+        android:src="@drawable/ic_searching"
+        android:layout_margin="10dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="0dp">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/item_test_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="Loading"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/item_artist_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/item_test_list"
+            android:text="Loading"
+            android:lines="1"
+            android:layout_marginTop="1dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:paddingLeft="5dp"
+            android:paddingRight="0dp"
+            android:gravity="center_vertical"
+            android:textStyle="italic" />
+
+    </RelativeLayout>
+
+
+</LinearLayout>

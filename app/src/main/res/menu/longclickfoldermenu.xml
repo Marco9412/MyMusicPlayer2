@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/enqueuefolder"
+        android:title="Enqueue" />
+
+    <item android:id="@+id/enqueueplayfolder"
+        android:title="Enqueue and Play" />
+
+    <item android:id="@+id/downloadfolder"
+        android:title="Download folder" />
+
+    <!-- TODO Menu asking if recursive or not! -->
+    <item android:id="@+id/getm3u"
+        android:title="Get m3u file" />
+
+</menu>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<!--
+    export settings
+    clear localsongs file
+    clear queue file
+    clear customsongs file
+    ....
+-->
+
+    <Preference
+        android:key="export_settings"
+        android:title="Export settings files"
+        android:summary="Copy settings files into sd card" />
+
+    <Preference
+        android:key="clear_local"
+        android:title="Clear localsongs file" />
+
+    <Preference
+        android:key="clear_queue"
+        android:title="Clear queue file" />
+
+    <Preference
+        android:key="clear_custom"
+        android:title="Clear custom songs file" />
+
+    <Preference
+        android:key="load_existing_media"
+        android:title="Load existing local songs" />
+</PreferenceScreen>

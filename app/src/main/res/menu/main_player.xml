@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/media_route_menu_item"
+        android:title="Cast"
+        app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/repeatmenu"
+        android:title="Repeat"
+        android:checked="false"
+        android:checkable="true" />
+
+    <item android:id="@+id/shufflemenu"
+        android:title="Shuffle"
+        android:checked="false"
+        android:checkable="true" />
+
+    <item
+        android:id="@+id/clear_queue"
+        android:title="Clear queue"
+        app:showAsAction="never" />
+</menu>

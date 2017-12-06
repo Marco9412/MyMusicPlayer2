@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_player"
+            android:icon="@drawable/ic_play_circle_grey_64dp"
+            android:title="Player" />
+
+        <item
+            android:id="@+id/nav_song"
+            android:icon="@drawable/ic_menu_song"
+            android:title="Local songs" />
+
+        <item
+            android:id="@+id/nav_custom"
+            android:icon="@drawable/ic_router_black_24dp"
+            android:title="Custom songs" />
+
+        <item
+            android:id="@+id/nav_folder"
+            android:icon="@drawable/ic_menu_folder"
+            android:title="Folders" />
+
+        <item
+            android:id="@+id/nav_search"
+            android:icon="@drawable/ic_menu_search"
+            android:title="Search" />
+
+        <!--
+        <item
+            android:id="@+id/nav_camera"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="Import" />
+        <item
+            android:id="@+id/nav_gallery"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Gallery" />
+        <item
+            android:id="@+id/nav_slideshow"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Slideshow" />
+        <item
+            android:id="@+id/nav_manage"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Tools" />
+
+        -->
+    </group>
+
+    <!--
+    <item android:title="Communicate">
+    -->
+    <group android:checkableBehavior="none">
+        <!--
+        <item
+            android:id="@+id/nav_share"
+            android:icon="@drawable/ic_menu_share"
+            android:title="Share" />
+        <item
+            android:id="@+id/nav_send"
+            android:icon="@drawable/ic_menu_send"
+            android:title="Send" />
+        -->
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Settings" />
+
+        <item
+            android:id="@+id/nav_quit"
+            android:icon="@drawable/ic_quit"
+            android:title="Quit" />
+    </group>
+
+</menu>

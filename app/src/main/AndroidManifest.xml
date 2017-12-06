@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.panni.mymusicplayer2">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:name=".MyMusicPlayerApplication"
+        android:allowBackup="true"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name_ok"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".view.MainActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/app_name_ok"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".view.settings.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".view.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.panni.mymusicplayer2.view.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".controller.youtube.YoutubeLinkActivity"
+            android:label="Add to Music Collection"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:host="www.youtube.com"
+                    android:mimeType="text/*" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".controller.upload.UploadSongActivity"
+            android:label="Add to Music Collection"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:enabled="false">
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="audio/*" />
+            </intent-filter>
+
+        </activity>
+
+        <service
+            android:name=".controller.player.service.PlayerService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
+            android:name=".controller.localsongs.SongDownloaderService"
+            android:exported="false" />
+
+        <service
+            android:name=".controller.upload.UploadService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".controller.audio.AudioNoisyReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+            </intent-filter>
+        </receiver>
+
+        <!-- TODO need it??
+        <receiver android:name=".controller.localsongs.DownloadReceiver"></receiver>
+        -->
+
+        <receiver android:name=".controller.audio.InputButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
+
+        <!-- Enable in Samsung multiwindow mode -->
+        <meta-data android:name="com.samsung.android.sdk.multiwindow.enable" android:value="true" />
+        <!-- Enable in LG split window mode -->
+        <meta-data android:name="com.lge.support.SPLIT_WINDOW" android:value="true" />
+    </application>
+
+</manifest>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="yt_intent_enable"
+        android:summary="Adds this app in the share menu of a youtube video"
+        android:title="Enable youtube download" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="upload_enable"
+        android:summary="Enable this app to send audio files to server"
+        android:title="Enable song upload" />
+
+</PreferenceScreen>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/setnextsong"
+        android:title="Set as next" />
+
+    <item
+        android:id="@+id/removesong"
+        android:title="Remove" />
+
+    <item
+        android:id="@+id/downloadsong"
+        android:title="Download" />
+
+    <item android:id="@+id/sharesong"
+        android:title="Share song" />
+
+    <item
+        android:id="@+id/moveupsong"
+        android:title="Move Up" />
+
+    <item
+        android:id="@+id/movedownsong"
+        android:title="Move Down" />
+
+</menu>

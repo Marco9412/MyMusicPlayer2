@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <!--  android:theme="@style/TemaACaso" -->
+
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:id="@+id/item_image_list"
+        android:src="@drawable/ic_searching"
+        android:layout_margin="10dp" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/item_test_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Loading"
+        android:layout_margin="10dp"
+        android:gravity="center_vertical" />
+
+</LinearLayout>
