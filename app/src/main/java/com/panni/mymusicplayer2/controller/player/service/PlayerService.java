@@ -8,7 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 
 import com.panni.mymusicplayer2.R;
 import com.panni.mymusicplayer2.controller.Controller;
@@ -116,7 +116,7 @@ public class PlayerService extends Service {
         MyQueueItem item = currentPlaylist.getCurrentItem();
 
         // Notification
-        Notification notification = new NotificationCompat.Builder(getApplicationContext())
+        Notification notification = new Notification.Builder(getApplicationContext())
                 .setTicker(item.getTitle())
                 .setContentTitle(item.getTitle())
                 .setContentText(item.getArtist())
