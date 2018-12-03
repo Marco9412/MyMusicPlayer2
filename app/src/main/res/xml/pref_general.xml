@@ -31,6 +31,7 @@
         android:title="Server address" />
         <!-- android:dependency="dropbox_get_remote_addr" TODO -->
 
+    <!--
     <EditTextPreference
         android:capitalize="words"
         android:defaultValue="9999"
@@ -39,17 +40,27 @@
         android:maxLines="1"
         android:selectAllOnFocus="true"
         android:singleLine="true"
-        android:title="Server HTTPS port" />
+        android:title="Server HTTPS port" /> -->
 
     <EditTextPreference
         android:capitalize="words"
-        android:defaultValue="9998"
+        android:defaultValue="9999"
         android:inputType="number"
         android:key="remote_http_port"
         android:maxLines="1"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="Server HTTP port" />
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="panaapps/pymusicserver3"
+        android:inputType="text"
+        android:key="remote_basepath"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Remote basepath" />
 
     <!--<SwitchPreference-->
         <!--android:defaultValue="false"-->

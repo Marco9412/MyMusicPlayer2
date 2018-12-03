@@ -23,10 +23,11 @@ public class Settings {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         String host = preferences.getString("remote_addr", "0.0.0.0"); // TODO
-        int httpport = Integer.parseInt(preferences.getString("remote_http_port", "9998"));
-        int httpsport = Integer.parseInt(preferences.getString("remote_https_port", "9999"));
+        //int httpport = Integer.parseInt(preferences.getString("remote_http_port", "9998"));
+        //int httpsport = Integer.parseInt(preferences.getString("remote_https_port", "9999"));
         String user = preferences.getString("remote_username", "dummy");
         String pass = preferences.getString("remote_password", "dummy");
+        String prefix = preferences.getString("remote_basepath", "");
 
         boolean ytDownload = preferences.getBoolean("yt_intent_enable", false);
         boolean upload = preferences.getBoolean("upload_enable", false);
@@ -36,14 +37,14 @@ public class Settings {
         // Check if it is correct!
         URL remote;
         try {
-            remote = new URL("https://" + host + ":" + httpsport + RPC_PATH);
+            remote = new URL("https://" + host + "/" + prefix + RPC_PATH);
         } catch (MalformedURLException ex) {
             remote = Utils.getDefaultURL();
             Toast.makeText(context, "Wrong settings! App may be not fully work!", Toast.LENGTH_LONG).show();
         }
 
         return new Settings(
-                remote, httpport, httpsport, user, pass, ytDownload, upload, smartCache
+                remote, prefix, user, pass, ytDownload, upload, smartCache
         );
     }
 
@@ -51,8 +52,6 @@ public class Settings {
     private URL remoteHostUrl;
     private String songRequestUrl;
     private String httpsPostUrl;
-    private int httpport;
-    private int httpsport;
 
     private String username;
     private String password;
@@ -64,14 +63,12 @@ public class Settings {
 
     private PyMusicManagerConnector connector;
 
-    private Settings(URL remoteHostUrl, int httpport, int httpsport, String username,
+    private Settings(URL remoteHostUrl, String remoteBasePath, String username,
                     String password, boolean ytDownloadEnabled, boolean songUploadEnabled, boolean smartCacheEnabled) {
         this.remoteHostUrl = remoteHostUrl;
         this.remoteHost = this.remoteHostUrl.getHost();
-        this.songRequestUrl = "http://" + this.remoteHost + ":" + httpport + "/getsong?id=%d";
-        this.httpsPostUrl = "https://" + this.remoteHost + ":" + httpsport + "/songs/";
-        this.httpport = httpport;
-        this.httpsport = httpsport;
+        this.songRequestUrl = "http://" + this.remoteHost + "/" + remoteBasePath + "/getsong?id=%d";
+        this.httpsPostUrl = "https://" + this.remoteHost + "/" + remoteBasePath + "/songs/";
         this.username = username;
         this.password = password;
         this.connector = new PyMusicManagerConnector(remoteHostUrl, username, password, true); // TODO resolv SSL errors
@@ -92,14 +89,6 @@ public class Settings {
 
     public String getHttpsPostUrl() {
         return httpsPostUrl;
-    }
-
-    public int getHttpport() {
-        return httpport;
-    }
-
-    public int getHttpsport() {
-        return httpsport;
     }
 
     public String getUsername() {

@@ -53,8 +53,5 @@ public class RemoteControlClientPlayerListener implements PlayerListener {
                 Utils.playerStateToRemoteControlClientState(c.getCurrentPlayer().getCurrentState()),
                 current,
                 1.f);
-        remoteControlClient.editMetadata(false)
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, total)
-                .apply();
     }
 }
