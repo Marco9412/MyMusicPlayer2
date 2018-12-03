@@ -115,8 +115,8 @@ public class PlayerService extends Service {
 
         MyQueueItem item = currentPlaylist.getCurrentItem();
 
-        // Notification
-        Notification notification = new Notification.Builder(getApplicationContext())
+        // Notification standard
+        /*Notification notification = new Notification.Builder(getApplicationContext())
                 .setTicker(item.getTitle())
                 .setContentTitle(item.getTitle())
                 .setContentText(item.getArtist())
@@ -127,12 +127,30 @@ public class PlayerService extends Service {
                         isPlaying ?
                                 R.drawable.ic_pause_white_24dp :
                                 R.drawable.ic_play_arrow_white_24dp,
-                        "",
+                        isPlaying ? "Pause" : "Play",
                         pause)
                 //.addAction(R.drawable.ic_skip_previous_white_36dp, "", prev)
-                .addAction(R.drawable.ic_skip_next_white_36dp, "", next)
-                .addAction(R.drawable.ic_close_dark, "", quit)
+                .addAction(R.drawable.ic_skip_next_white_36dp, "Next", next)
+                .addAction(R.drawable.ic_close_dark, "Quit", quit)
                 .setOngoing(false)
+                .build();*/
+
+        Notification notification = new NotificationCompat.Builder(getApplicationContext())
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .addAction(R.drawable.ic_skip_previous_white_36dp, "Prev", prev)
+                .addAction(isPlaying ?
+                            R.drawable.ic_pause_white_24dp :
+                            R.drawable.ic_play_arrow_white_24dp,
+                        isPlaying ? "Pause" : "Play",
+                        pause)
+                .addAction(R.drawable.ic_skip_next_white_36dp, "Next", next)
+                .setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
+                        .setShowActionsInCompactView(0,1,2))
+                .setTicker(item.getTitle())
+                .setContentTitle(item.getTitle())
+                .setContentText(item.getArtist())
+                .setContentIntent(intentOpenActivity)
                 .build();
 
         // Show notification
