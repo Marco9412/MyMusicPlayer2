@@ -13,6 +13,7 @@ public abstract class BaseFragment extends Fragment {
     public static final int TYPE_CUSTOM_SONG = 2;
     public static final int TYPE_FOLDER = 3;
     public static final int TYPE_SEARCH = 4;
+    public static final int TYPE_YOUTUBE = 5;
 
     public abstract int getType();
 }

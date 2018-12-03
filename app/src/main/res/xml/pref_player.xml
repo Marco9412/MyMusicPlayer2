@@ -15,4 +15,16 @@
         android:summary="Save locally every played song"
         android:title="Enable local cache" />
 
+    <Preference
+        android:key="install_rootfs"
+        android:title="Enable youtube video direct play"
+        android:enabled="true"
+        android:summary="Enables youtube videos in app" />
+
+    <Preference
+        android:key="update_rootfs"
+        android:title="Update youtube video extractor library"
+        android:summary="Needed if you get errors when playing directly youtube videos"
+        android:enabled="true" /> <!-- TODO parse enabled arguments -->
+
 </PreferenceScreen>

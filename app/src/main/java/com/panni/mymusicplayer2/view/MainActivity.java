@@ -32,6 +32,7 @@ import com.panni.mymusicplayer2.view.fragments.LocalSongListFragment;
 import com.panni.mymusicplayer2.view.fragments.PlayerFragment;
 import com.panni.mymusicplayer2.view.fragments.SearchFragment;
 import com.panni.mymusicplayer2.view.fragments.SongListFragment;
+import com.panni.mymusicplayer2.view.fragments.YoutubeFragment;
 import com.panni.mymusicplayer2.view.settings.SettingsActivity;
 
 
@@ -145,8 +146,12 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if (!this.fragmentController.back())
+        } else if (currentFragmentType == BaseFragment.TYPE_YOUTUBE &&
+                ((YoutubeFragment) this.fragmentController.getCurrent()).webViewBack()) {
+            return;
+        } else if (!this.fragmentController.back()) {
             super.onBackPressed();
+        }
     }
 
     @Override
@@ -209,6 +214,10 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_search:
                 if (currentFragmentType != BaseFragment.TYPE_SEARCH)
                     this.fragmentController.reset(SearchFragment.create());
+                break;
+            case R.id.nav_youtube:
+                if (currentFragmentType != BaseFragment.TYPE_YOUTUBE)
+                    this.fragmentController.reset(YoutubeFragment.create());
                 break;
             case R.id.nav_settings:
                 Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
@@ -305,3 +314,4 @@ public class MainActivity extends AppCompatActivity
 //
 //    }
 }
+

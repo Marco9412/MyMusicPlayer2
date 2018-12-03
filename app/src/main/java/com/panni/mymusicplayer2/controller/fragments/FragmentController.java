@@ -1,5 +1,7 @@
 package com.panni.mymusicplayer2.controller.fragments;
 
+import android.support.v4.app.Fragment;
+
 import com.panni.mymusicplayer2.view.fragments.BaseFragment;
 
 /**
@@ -34,5 +36,5 @@ public interface FragmentController {
      * Returns the shown fragment.
      * @return the shown fragment.
      */
-    //Fragment getCurrent();
+    Fragment getCurrent();
 }

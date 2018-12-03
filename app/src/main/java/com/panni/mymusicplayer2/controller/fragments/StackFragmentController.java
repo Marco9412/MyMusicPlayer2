@@ -1,5 +1,6 @@
 package com.panni.mymusicplayer2.controller.fragments;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
@@ -77,6 +78,11 @@ public class StackFragmentController implements FragmentController {
     @Override
     public void removeFragmentControllerListener() {
         this.listener = null;
+    }
+
+    @Override
+    public Fragment getCurrent() {
+        return this.fragmentsStack.peek();
     }
 
     private void update(BaseFragment fragment) {
