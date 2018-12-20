@@ -379,6 +379,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(BuildConfig.BUILD_DATE));
             findPreference("pref_git_branch").setTitle("Git branch: " + BuildConfig.GitBranchName);
             findPreference("pref_git_hash").setTitle("Git commit: " + BuildConfig.GitHash);
+            findPreference("pref_app_is_debug").setTitle("App build type: " + BuildConfig.BUILD_TYPE);
         }
 
         @Override
