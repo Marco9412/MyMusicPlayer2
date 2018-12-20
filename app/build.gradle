@@ -1,6 +1,25 @@
 apply plugin: 'com.android.application'
 
 android {
+    def getGitHash = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+
+    def getGitBranchName = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'status'
+            standardOutput = stdout
+        }
+        // First line is "On branch xxxx", we take only the xxx part!
+        return stdout.toString().split("\n")[0].substring(10)
+    }
+
     compileSdkVersion 28
     //buildToolsVersion "28.0.2"
 
@@ -10,6 +29,10 @@ android {
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
+
+        buildConfigField "String", "GitHash", "\"${getGitHash()}\""
+        buildConfigField "String", "GitBranchName", "\"${getGitBranchName()}\""
+        buildConfigField "java.util.Date", "BUILD_DATE", "new java.util.Date(" + System.currentTimeMillis() + "L)"
     }
 
     buildTypes {

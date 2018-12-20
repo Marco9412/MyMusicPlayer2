@@ -15,6 +15,8 @@ import com.panni.mymusicplayer2.utils.Utils;
 
 public class RemoteControlClientPlayerListener implements PlayerListener {
 
+    private int lastTotal = -1;
+
     @SuppressWarnings("deprecation")
     private RemoteControlClient remoteControlClient;
 
@@ -53,5 +55,14 @@ public class RemoteControlClientPlayerListener implements PlayerListener {
                 Utils.playerStateToRemoteControlClientState(c.getCurrentPlayer().getCurrentState()),
                 current,
                 1.f);
+
+        // Fix: with smart cache enabled when a new song is played the wrong total time remains
+        // into the mediasession and causes a crash when the song ends
+        if (total != lastTotal) {
+            lastTotal = total;
+            remoteControlClient.editMetadata(false)
+                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, total)
+                    .apply();
+        }
     }
 }
