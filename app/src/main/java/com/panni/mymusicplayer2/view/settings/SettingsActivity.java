@@ -1,6 +1,7 @@
 package com.panni.mymusicplayer2.view.settings;
 
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.panni.mymusicplayer2.BuildConfig;
 import com.panni.mymusicplayer2.R;
 import com.panni.mymusicplayer2.controller.ControllerImpl;
 import com.panni.mymusicplayer2.controller.localsongs.CustomSongManager;
@@ -30,6 +32,7 @@ import com.panni.mymusicplayer2.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -171,7 +174,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
                 || SharePreferenceFragment.class.getName().equals(fragmentName)
                 || PlayerPreferenceFragment.class.getName().equals(fragmentName)
-                || DebugPreferenceFragment.class.getName().equals(fragmentName); // TODO
+                || (DebugPreferenceFragment.class.getName().equals(fragmentName) && BuildConfig.DEBUG)
+                || AppInfoPreferenceFragment.class.getName().equals(fragmentName);
                 //|| DataSyncPreferenceFragment.class.getName().equals(fragmentName)
                 //|| NotificationPreferenceFragment.class.getName().equals(fragmentName);
     }
@@ -182,6 +186,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment {
+        @SuppressLint("SimpleDateFormat")
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -349,6 +354,32 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     return true;
                 }
             });
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class AppInfoPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_appinfo);
+            setHasOptionsMenu(true);
+
+            findPreference("pref_build_date").setTitle("Build date: " +
+                    new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(BuildConfig.BUILD_DATE));
+            findPreference("pref_git_branch").setTitle("Git branch: " + BuildConfig.GitBranchName);
+            findPreference("pref_git_hash").setTitle("Git commit: " + BuildConfig.GitHash);
+            findPreference("pref_app_is_debug").setTitle("App build type: " + BuildConfig.BUILD_TYPE);
         }
 
         @Override
