@@ -6,6 +6,7 @@ import com.panni.mymusicplayer2.model.queue.objects.MyQueueItem;
 import com.panni.mymusicplayer2.utils.Utils;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -55,12 +56,17 @@ public class LinkedListQueue implements PlayerQueue {
     public LinkedListQueue(String sourceData) {
         LinkedList<MyQueueItem> items = new LinkedList<>();
         BufferedReader br = new BufferedReader(new StringReader(sourceData));
+
+        try { // read last position
+            this.currentPosition = Integer.parseInt(br.readLine());
+        } catch (IOException e) {
+        }
+
         MyQueueItem tmp;
         while ((tmp = MyQueueItem.fromFileFormat(br)) != null)
             items.add(tmp);
 
         this.queue = items;
-        this.currentPosition = 0;
         this.shuffle = false;
         this.repeat = false;
         this.edited = false;
@@ -124,6 +130,8 @@ public class LinkedListQueue implements PlayerQueue {
             // Empty
             if (length() == 0) return false;
 
+            edited = true;
+
             // Go to selected next song
             if (nextPosition != -1) {
                 currentPosition = nextPosition;
@@ -164,6 +172,8 @@ public class LinkedListQueue implements PlayerQueue {
             // Empty
             if (length() == 0) return false;
 
+            edited = true;
+
             // Shuffle
             if (shuffle) {
                 currentPosition = random.nextInt(length());
@@ -196,6 +206,7 @@ public class LinkedListQueue implements PlayerQueue {
     @Override
     public void setCurrentPosition(int currentPosition) {
         if (currentPosition < length() && currentPosition > -1) {
+            edited = true;
             this.currentPosition = currentPosition;
             update();
         }
@@ -332,9 +343,10 @@ public class LinkedListQueue implements PlayerQueue {
 
     @Override
     public String serialize() {
-        if (queue.size() == 0) return null;
-
         StringBuilder builder = new StringBuilder();
+        builder.append(this.currentPosition).append('\n');
+        if (queue.size() == 0) return builder.toString();
+
         for (MyQueueItem item: this.queue)
             builder.append(item.toFileFormat());
         return builder.toString();
