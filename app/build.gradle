@@ -25,14 +25,13 @@ android {
 
     defaultConfig {
         applicationId "com.panni.mymusicplayer2"
-        minSdkVersion 18
+        minSdkVersion 24
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
 
         buildConfigField "String", "GitHash", "\"${getGitHash()}\""
         buildConfigField "String", "GitBranchName", "\"${getGitBranchName()}\""
-        buildConfigField "java.util.Date", "BUILD_DATE", "new java.util.Date(" + System.currentTimeMillis() + "L)"
     }
 
     buildTypes {
@@ -40,11 +39,15 @@ android {
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField "java.util.Date", "BUILD_DATE", "new java.util.Date(0L)"
         }
 
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField "java.util.Date", "BUILD_DATE", "new java.util.Date(" + System.currentTimeMillis() + "L)"
         }
     }
 }
@@ -63,9 +66,13 @@ dependencies {
     implementation 'com.google.android.libraries.cast.companionlibrary:ccl:2.8.4'
 
     // ExoPlayer
-    implementation 'com.google.android.exoplayer:exoplayer:r1.5.9'
+    //implementation 'com.google.android.exoplayer:exoplayer:r1.5.9'
     //implementation project(':library-release_1.5.9')
     //implementation project(':extension-flac-release_1.5.9')
+
+    // https://mvnrepository.com/artifact/com.google.android.exoplayer/exoplayer
+    implementation group: 'com.google.android.exoplayer', name: 'exoplayer', version: '2.8.4'
+
 
     // Gif viewer
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.1.17'
