@@ -1,1 +1,4 @@
-include ':app', ':extension-flac-release_1.5.9', ':library-release_1.5.9'
+include ':app'
+gradle.ext.exoplayerRoot = 'third_party/ExoPlayer'
+gradle.ext.exoplayerModulePrefix = 'exoplayer-'
+apply from: new File(gradle.ext.exoplayerRoot, 'core_settings.gradle')

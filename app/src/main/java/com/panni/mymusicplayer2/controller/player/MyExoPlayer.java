@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
 /**
  * Created by marco on 28/05/16.
  */
@@ -53,9 +54,9 @@ public class MyExoPlayer implements Player, com.google.android.exoplayer2.Player
         playerState = Player.STATE_STOPPED;
         listeners = new LinkedList<>();
         uiTimerWasRunning = false;
-        exoPlayer = (SimpleExoPlayer) ExoPlayerFactory.newSimpleInstance(
-                new DefaultRenderersFactory(context),
-                new DefaultTrackSelector(),
+        exoPlayer = ExoPlayerFactory.newSimpleInstance(
+                new DefaultRenderersFactory(context), // DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON), // TODO enable with ffmpeg extension
+        new DefaultTrackSelector(),
                 new DefaultLoadControl()
         );
         //exoPlayer = ExoPlayer.Factory.newInstance(1, 1000, 1000);
@@ -252,7 +253,7 @@ public class MyExoPlayer implements Player, com.google.android.exoplayer2.Player
         );
 
         exoPlayer.seekTo(0);
-        exoPlayer.prepare(mediaSource);
+        exoPlayer.prepare(mediaSource); // TODO should find a way to set FfmpegAudioRenderer as in 1.X version!
         exoPlayer.setPlayWhenReady(true);
 
         playerState = Player.STATE_BUFFERING;
