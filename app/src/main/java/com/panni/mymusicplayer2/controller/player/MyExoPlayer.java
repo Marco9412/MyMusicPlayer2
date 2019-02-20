@@ -56,7 +56,7 @@ public class MyExoPlayer implements Player, com.google.android.exoplayer2.Player
         uiTimerWasRunning = false;
         exoPlayer = ExoPlayerFactory.newSimpleInstance(
                 new DefaultRenderersFactory(context), // DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON), // TODO enable with ffmpeg extension
-        new DefaultTrackSelector(),
+                new DefaultTrackSelector(),
                 new DefaultLoadControl()
         );
         //exoPlayer = ExoPlayer.Factory.newInstance(1, 1000, 1000);
