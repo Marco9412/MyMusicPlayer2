@@ -38,7 +38,7 @@ public class LinkedListQueue implements PlayerQueue {
         this.queue = Collections.synchronizedList(queue);
         this.currentPosition = 0;
         this.shuffle = false;
-        this.repeat = false;
+        this.repeat = true;
         this.edited = false;
         this.nextPosition = nextPosition;
         this.random = new Random();
@@ -68,7 +68,7 @@ public class LinkedListQueue implements PlayerQueue {
 
         this.queue = items;
         this.shuffle = false;
-        this.repeat = false;
+        this.repeat = true;
         this.edited = false;
         this.nextPosition = -1;
         this.random = new Random();

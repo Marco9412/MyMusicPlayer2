@@ -10,7 +10,7 @@
 
     <item android:id="@+id/repeatmenu"
         android:title="Repeat"
-        android:checked="false"
+        android:checked="true"
         android:checkable="true" />
 
     <item android:id="@+id/shufflemenu"
