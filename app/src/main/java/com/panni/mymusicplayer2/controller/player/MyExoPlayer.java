@@ -20,15 +20,26 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.FileDataSource;
+import com.google.android.exoplayer2.util.Util;
+import com.panni.mymusicplayer2.MyMusicPlayerApplication;
 import com.panni.mymusicplayer2.controller.ControllerImpl;
+import com.panni.mymusicplayer2.controller.localsongs.LocalSongManager;
 import com.panni.mymusicplayer2.controller.localsongs.musicsource.IcyDataSource;
 import com.panni.mymusicplayer2.controller.localsongs.musicsource.SongDataSource;
 import com.panni.mymusicplayer2.controller.player.service.PlayerService;
 import com.panni.mymusicplayer2.model.queue.PlayerQueue;
+import com.panni.mymusicplayer2.model.queue.objects.MyQueueItem;
+import com.panni.mymusicplayer2.utils.Utils;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import objects.DbObject;
+import objects.Song;
 
 
 /**
@@ -50,8 +61,11 @@ public class MyExoPlayer implements Player, com.google.android.exoplayer2.Player
     private Timer uiTimer;
     private boolean uiTimerWasRunning;
 
+    private DataSource.Factory dataSourceFactory;
+
     public MyExoPlayer(Context context) {
         playerState = Player.STATE_STOPPED;
+        dataSourceFactory = new DefaultDataSourceFactory(context, Util.getUserAgent(context, "mymusicplayer2")); // For ExoPlayer
         listeners = new LinkedList<>();
         uiTimerWasRunning = false;
         exoPlayer = ExoPlayerFactory.newSimpleInstance(
@@ -235,22 +249,47 @@ public class MyExoPlayer implements Player, com.google.android.exoplayer2.Player
             //exoPlayer.release();
         }
 
-        ExtractorMediaSource.Factory extractorMediaFactory = new ExtractorMediaSource.Factory(new DataSource.Factory() {
-            @Override
-            public DataSource createDataSource() {
-                // If is remote stream, don't save!
-                if (playlist.getCurrentItem().isCustom())
+        MyQueueItem currentItem = playlist.getCurrentItem();
+        Song currentSong = playlist.getCurrentSong();
+        MediaSource mediaSource = null;
+
+        // 1. Custom Item
+        if (currentItem.isCustom()) {
+            ExtractorMediaSource.Factory extractorMediaFactory = new ExtractorMediaSource.Factory(new DataSource.Factory() {
+                @Override
+                public DataSource createDataSource() {
                     return new IcyDataSource(System.getProperty("http.agent"), null);
-                else //if (ControllerImpl.getInstance().getCurrentSettings().isSmartCacheEnabled())
-                    return new SongDataSource(System.getProperty("http.agent"), null)
-                            //.setContext(context)
-                            .setSong(playlist.getCurrentSong());
+                }
+            });
+            extractorMediaFactory.setExtractorsFactory(new DefaultExtractorsFactory());
+            mediaSource = extractorMediaFactory.createMediaSource(
+                    Uri.parse(playlist.getCurrentMediaQueueItem().getMedia().getContentId())
+            );
+        } else {
+            LocalSongManager lsm = LocalSongManager.getInstance();
+            if (lsm.localSongExists(currentSong)) {
+                // 2. Cached file
+                mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(
+                                Uri.fromFile(Utils.getSongFile(currentSong)
+                                )
+                        );
+
+            } else {
+                // 3. File not cached
+                ExtractorMediaSource.Factory extractorMediaFactory = new ExtractorMediaSource.Factory(new DataSource.Factory() {
+                    @Override
+                    public DataSource createDataSource() {
+                        return new SongDataSource(System.getProperty("http.agent"), null)
+                                .setSong(playlist.getCurrentSong());
+                    }
+                });
+                extractorMediaFactory.setExtractorsFactory(new DefaultExtractorsFactory());
+                mediaSource = extractorMediaFactory.createMediaSource(
+                        Uri.parse(playlist.getCurrentMediaQueueItem().getMedia().getContentId())
+                );
             }
-        });
-        extractorMediaFactory.setExtractorsFactory(new DefaultExtractorsFactory());
-        MediaSource mediaSource = extractorMediaFactory.createMediaSource(
-                Uri.parse(playlist.getCurrentMediaQueueItem().getMedia().getContentId())
-        );
+        }
 
         exoPlayer.seekTo(0);
         exoPlayer.prepare(mediaSource); // TODO should find a way to set FfmpegAudioRenderer as in 1.X version!

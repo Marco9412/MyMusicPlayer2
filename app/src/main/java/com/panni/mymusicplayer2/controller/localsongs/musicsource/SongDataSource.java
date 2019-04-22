@@ -225,6 +225,7 @@ public class SongDataSource implements HttpDataSource {
             return originalOpen(dataSpec);
         }
 
+        // Repeated check! (already checked in MyExoPlayer::startAPlayer()
         File songfile = Utils.getSongFile(song);
         LocalSongManager lsm = LocalSongManager.getInstance();
 
