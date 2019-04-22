@@ -1,15 +1,15 @@
 package com.panni.mymusicplayer2.controller.localsongs.musicsource;
 
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.upstream.HttpDataSource;
-import com.google.android.exoplayer.upstream.TransferListener;
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.Predicate;
-import com.google.android.exoplayer.util.Util;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Predicate;
 import com.panni.mymusicplayer2.controller.ControllerImpl;
 import com.panni.mymusicplayer2.controller.localsongs.BufferedRandomAccessFile;
 import com.panni.mymusicplayer2.controller.localsongs.LocalSongManager;
@@ -69,7 +69,7 @@ public class SongDataSource implements HttpDataSource {
     private final String userAgent;
     private final Predicate<String> contentTypePredicate;
     private final HashMap<String, String> requestProperties;
-    private final TransferListener listener;
+    private final TransferListener<SongDataSource> listener;
 
     private DataSpec dataSpec;
     private HttpURLConnection connection;
@@ -113,7 +113,7 @@ public class SongDataSource implements HttpDataSource {
      * @param listener             An optional listener.
      */
     public SongDataSource(String userAgent, Predicate<String> contentTypePredicate,
-                          TransferListener listener) {
+                          TransferListener<SongDataSource> listener) {
         this(userAgent, contentTypePredicate, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS,
                 DEFAULT_READ_TIMEOUT_MILLIS);
     }
@@ -130,7 +130,7 @@ public class SongDataSource implements HttpDataSource {
      *                             as an infinite timeout.
      */
     public SongDataSource(String userAgent, Predicate<String> contentTypePredicate,
-                          TransferListener listener, int connectTimeoutMillis, int readTimeoutMillis) {
+                          TransferListener<SongDataSource> listener, int connectTimeoutMillis, int readTimeoutMillis) {
         this(userAgent, contentTypePredicate, listener, connectTimeoutMillis, readTimeoutMillis, false);
     }
 
@@ -149,7 +149,7 @@ public class SongDataSource implements HttpDataSource {
      *                                    to HTTPS and vice versa) are enabled.
      */
     public SongDataSource(String userAgent, Predicate<String> contentTypePredicate,
-                          TransferListener listener, int connectTimeoutMillis, int readTimeoutMillis,
+                          TransferListener<SongDataSource> listener, int connectTimeoutMillis, int readTimeoutMillis,
                           boolean allowCrossProtocolRedirects) {
         this.userAgent = Assertions.checkNotEmpty(userAgent);
         this.contentTypePredicate = contentTypePredicate;
@@ -163,8 +163,8 @@ public class SongDataSource implements HttpDataSource {
     }
 
     @Override
-    public String getUri() {
-        return connection == null ? null : connection.getURL().toString();
+    public Uri getUri() {
+        return connection == null ? null : Uri.parse(connection.getURL().toString());
     }
 
     @Override
@@ -225,6 +225,7 @@ public class SongDataSource implements HttpDataSource {
             return originalOpen(dataSpec);
         }
 
+        // Repeated check! (already checked in MyExoPlayer::startAPlayer()
         File songfile = Utils.getSongFile(song);
         LocalSongManager lsm = LocalSongManager.getInstance();
 
@@ -250,14 +251,14 @@ public class SongDataSource implements HttpDataSource {
 
                 if (dataSpec.position > 0) inputStream.skip(dataSpec.position);
 
-                bytesToRead = dataSpec.length != C.LENGTH_UNBOUNDED ? dataSpec.length
-                        : contentLength != C.LENGTH_UNBOUNDED ? contentLength - dataSpec.position
-                        : C.LENGTH_UNBOUNDED;
+                bytesToRead = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length
+                        : contentLength != C.LENGTH_UNSET ? contentLength - dataSpec.position
+                        : C.LENGTH_UNSET;
 
                 opened = true;
                 local = true;
                 if (listener != null) {
-                    listener.onTransferStart();
+                    listener.onTransferStart(this, dataSpec);
                 }
 
                 return contentLength;
@@ -320,9 +321,9 @@ public class SongDataSource implements HttpDataSource {
         // Determine the length of the data to be read, after skipping.
         if ((dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) == 0) {
             long contentLength = getContentLength(connection);
-            bytesToRead = dataSpec.length != C.LENGTH_UNBOUNDED ? dataSpec.length
-                    : contentLength != C.LENGTH_UNBOUNDED ? contentLength - bytesToSkip
-                    : C.LENGTH_UNBOUNDED;
+            bytesToRead = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length
+                    : contentLength != C.LENGTH_UNSET ? contentLength - bytesToSkip
+                    : C.LENGTH_UNSET;
         } else {
             // Gzip is enabled. If the server opts to use gzip then the content length in the response
             // will be that of the compressed data, which isn't what we want. Furthermore, there isn't a
@@ -349,7 +350,7 @@ public class SongDataSource implements HttpDataSource {
 
         opened = true;
         if (listener != null) {
-            listener.onTransferStart();
+            listener.onTransferStart(this, dataSpec);
         }
 
         return bytesToRead;
@@ -371,7 +372,7 @@ public class SongDataSource implements HttpDataSource {
             if (inputStream != null) {
                 try {
                     if (!local) {
-                        Util.maybeTerminateInputStream(connection, bytesRemaining());
+                        //Util.maybeTerminateInputStream(connection, bytesRemaining());
 
                         // Fix: data == null if smartCache is disabled
                         if (data != null) {
@@ -400,7 +401,7 @@ public class SongDataSource implements HttpDataSource {
             if (opened) {
                 opened = false;
                 if (listener != null) {
-                    listener.onTransferEnd();
+                    listener.onTransferEnd(this);
                 }
             }
         }
@@ -439,12 +440,12 @@ public class SongDataSource implements HttpDataSource {
      * Returns the number of bytes that are still to be read for the current {@link DataSpec}.
      * <p>
      * If the total length of the data being read is known, then this length minus {@code bytesRead()}
-     * is returned. If the total length is unknown, {@link C#LENGTH_UNBOUNDED} is returned.
+     * is returned. If the total length is unknown, {@link C#LENGTH_UNSET} is returned.
      *
-     * @return The remaining length, or {@link C#LENGTH_UNBOUNDED}.
+     * @return The remaining length, or {@link C#LENGTH_UNSET}.
      */
     protected final long bytesRemaining() {
-        return bytesToRead == C.LENGTH_UNBOUNDED ? bytesToRead : bytesToRead - bytesRead;
+        return bytesToRead == C.LENGTH_UNSET ? bytesToRead : bytesToRead - bytesRead;
     }
 
     /**
@@ -498,7 +499,7 @@ public class SongDataSource implements HttpDataSource {
      * @param url             The url to connect to.
      * @param postBody        The body data for a POST request.
      * @param position        The byte offset of the requested data.
-     * @param length          The length of the requested data, or {@link C#LENGTH_UNBOUNDED}.
+     * @param length          The length of the requested data, or {@link C#LENGTH_UNSET}.
      * @param allowGzip       Whether to allow the use of gzip.
      * @param followRedirects Whether to follow redirects.
      */
@@ -512,9 +513,9 @@ public class SongDataSource implements HttpDataSource {
                 connection.setRequestProperty(property.getKey(), property.getValue());
             }
         }
-        if (!(position == 0 && length == C.LENGTH_UNBOUNDED)) {
+        if (!(position == 0 && length == C.LENGTH_UNSET)) {
             String rangeRequest = "bytes=" + position + "-";
-            if (length != C.LENGTH_UNBOUNDED) {
+            if (length != C.LENGTH_UNSET) {
                 rangeRequest += (position + length - 1);
             }
             connection.setRequestProperty("Range", rangeRequest);
@@ -570,10 +571,10 @@ public class SongDataSource implements HttpDataSource {
      * Attempts to extract the length of the content from the response headers of an open connection.
      *
      * @param connection The open connection.
-     * @return The extracted length, or {@link C#LENGTH_UNBOUNDED}.
+     * @return The extracted length, or {@link C#LENGTH_UNSET}.
      */
     private static long getContentLength(HttpURLConnection connection) {
-        long contentLength = C.LENGTH_UNBOUNDED;
+        long contentLength = C.LENGTH_UNSET;
         String contentLengthHeader = connection.getHeaderField("Content-Length");
         if (!TextUtils.isEmpty(contentLengthHeader)) {
             try {
@@ -675,7 +676,7 @@ public class SongDataSource implements HttpDataSource {
      * @throws IOException If an error occurs reading from the source.
      */
     private int readInternal(byte[] buffer, int offset, int readLength) throws IOException {
-        readLength = bytesToRead == C.LENGTH_UNBOUNDED ? readLength
+        readLength = bytesToRead == C.LENGTH_UNSET ? readLength
                 : (int) Math.min(readLength, bytesToRead - bytesRead);
         if (readLength == 0) {
             // We've read all of the requested data.
@@ -693,7 +694,7 @@ public class SongDataSource implements HttpDataSource {
         }
 
         if (read == -1) {
-            if (bytesToRead != C.LENGTH_UNBOUNDED && bytesToRead != bytesRead) {
+            if (bytesToRead != C.LENGTH_UNSET && bytesToRead != bytesRead) {
                 // The server closed the connection having not sent sufficient data.
                 throw new EOFException();
             }
@@ -702,7 +703,7 @@ public class SongDataSource implements HttpDataSource {
 
         bytesRead += read;
         if (listener != null) {
-            listener.onBytesTransferred(read);
+            listener.onBytesTransferred(this, read);
         }
         return read;
     }

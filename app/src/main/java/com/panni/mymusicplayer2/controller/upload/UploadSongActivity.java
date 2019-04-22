@@ -18,8 +18,8 @@ public class UploadSongActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        if (intent.getAction().equals(Intent.ACTION_SEND)) {
-            if (intent.getType().contains("audio/")) {
+        if (intent != null && intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEND)) {
+            if (intent.getType() != null && intent.getType().contains("audio/")) {
                 Object tmp = intent.getExtras().get(Intent.EXTRA_STREAM);
                 if (tmp != null && tmp instanceof Uri)
                     // start service

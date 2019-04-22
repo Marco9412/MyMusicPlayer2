@@ -1,34 +1,55 @@
 package com.panni.mymusicplayer2.controller.player;
 
 
+import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.android.exoplayer.ExoPlaybackException;
-import com.google.android.exoplayer.ExoPlayer;
-import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
-import com.google.android.exoplayer.MediaCodecSelector;
-import com.google.android.exoplayer.extractor.ExtractorSampleSource;
-import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.FileDataSource;
+import com.google.android.exoplayer2.util.Util;
+import com.panni.mymusicplayer2.MyMusicPlayerApplication;
 import com.panni.mymusicplayer2.controller.ControllerImpl;
+import com.panni.mymusicplayer2.controller.localsongs.LocalSongManager;
 import com.panni.mymusicplayer2.controller.localsongs.musicsource.IcyDataSource;
 import com.panni.mymusicplayer2.controller.localsongs.musicsource.SongDataSource;
 import com.panni.mymusicplayer2.controller.player.service.PlayerService;
 import com.panni.mymusicplayer2.model.queue.PlayerQueue;
+import com.panni.mymusicplayer2.model.queue.objects.MyQueueItem;
+import com.panni.mymusicplayer2.utils.Utils;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import objects.DbObject;
+import objects.Song;
+
 
 /**
  * Created by marco on 28/05/16.
  */
 
-public class MyExoPlayer implements Player, ExoPlayer.Listener {
+public class MyExoPlayer implements Player, com.google.android.exoplayer2.Player.EventListener {
 
-    private ExoPlayer exoPlayer;
-    private MediaCodecAudioTrackRenderer audioRenderer;
+    private SimpleExoPlayer exoPlayer;
+    //private MediaCodecAudioTrackRenderer audioRenderer;
     private int playerState;
 
     private PlayerQueue playlist;
@@ -40,11 +61,19 @@ public class MyExoPlayer implements Player, ExoPlayer.Listener {
     private Timer uiTimer;
     private boolean uiTimerWasRunning;
 
-    public MyExoPlayer() {
+    private DataSource.Factory dataSourceFactory;
+
+    public MyExoPlayer(Context context) {
         playerState = Player.STATE_STOPPED;
+        dataSourceFactory = new DefaultDataSourceFactory(context, Util.getUserAgent(context, "mymusicplayer2")); // For ExoPlayer
         listeners = new LinkedList<>();
         uiTimerWasRunning = false;
-        exoPlayer = ExoPlayer.Factory.newInstance(1, 1000, 1000);
+        exoPlayer = ExoPlayerFactory.newSimpleInstance(
+                new DefaultRenderersFactory(context), // DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON), // TODO enable with ffmpeg extension
+                new DefaultTrackSelector(),
+                new DefaultLoadControl()
+        );
+        //exoPlayer = ExoPlayer.Factory.newInstance(1, 1000, 1000);
         exoPlayer.addListener(this);
         playlist = ControllerImpl.getInstance().getCurrentQueue();
     }
@@ -208,8 +237,9 @@ public class MyExoPlayer implements Player, ExoPlayer.Listener {
     public void audioFocus(boolean status) {
         if (playerState == Player.STATE_PLAYING) {
             float vol = status ? 1.f : .1f;
-            if (audioRenderer != null)
-                exoPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME, vol);
+            this.exoPlayer.setVolume(vol);
+            //if (audioRenderer != null)
+            //    exoPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME, vol);
         }
     }
 
@@ -219,29 +249,50 @@ public class MyExoPlayer implements Player, ExoPlayer.Listener {
             //exoPlayer.release();
         }
 
-        DataSource currentDataSource;
+        MyQueueItem currentItem = playlist.getCurrentItem();
+        Song currentSong = playlist.getCurrentSong();
+        MediaSource mediaSource = null;
 
-        // If is remote stream, don't save!
-        if (playlist.getCurrentItem().isCustom())
-            currentDataSource = new IcyDataSource(System.getProperty("http.agent"), null);
-        else //if (ControllerImpl.getInstance().getCurrentSettings().isSmartCacheEnabled())
-            currentDataSource = new SongDataSource(System.getProperty("http.agent"), null)
-                    //.setContext(context)
-                    .setSong(playlist.getCurrentSong());
-        //else // Use default data source if smart cache is disabled!
-        //  currentDataSource = new DefaultHttpDataSource(System.getProperty("http.agent"), null);
+        // 1. Custom Item
+        if (currentItem.isCustom()) {
+            ExtractorMediaSource.Factory extractorMediaFactory = new ExtractorMediaSource.Factory(new DataSource.Factory() {
+                @Override
+                public DataSource createDataSource() {
+                    return new IcyDataSource(System.getProperty("http.agent"), null);
+                }
+            });
+            extractorMediaFactory.setExtractorsFactory(new DefaultExtractorsFactory());
+            mediaSource = extractorMediaFactory.createMediaSource(
+                    Uri.parse(playlist.getCurrentMediaQueueItem().getMedia().getContentId())
+            );
+        } else {
+            LocalSongManager lsm = LocalSongManager.getInstance();
+            if (lsm.localSongExists(currentSong)) {
+                // 2. Cached file
+                mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(
+                                Uri.fromFile(Utils.getSongFile(currentSong)
+                                )
+                        );
 
-        audioRenderer = new MediaCodecAudioTrackRenderer(
-                new ExtractorSampleSource(
-                        Uri.parse(playlist.getCurrentMediaQueueItem().getMedia().getContentId()),
-                        currentDataSource,
-                        new DefaultAllocator(64 * 1024),
-                        64 * 1024 * 256
-                ),
-                MediaCodecSelector.DEFAULT);
+            } else {
+                // 3. File not cached
+                ExtractorMediaSource.Factory extractorMediaFactory = new ExtractorMediaSource.Factory(new DataSource.Factory() {
+                    @Override
+                    public DataSource createDataSource() {
+                        return new SongDataSource(System.getProperty("http.agent"), null)
+                                .setSong(playlist.getCurrentSong());
+                    }
+                });
+                extractorMediaFactory.setExtractorsFactory(new DefaultExtractorsFactory());
+                mediaSource = extractorMediaFactory.createMediaSource(
+                        Uri.parse(playlist.getCurrentMediaQueueItem().getMedia().getContentId())
+                );
+            }
+        }
 
         exoPlayer.seekTo(0);
-        exoPlayer.prepare(audioRenderer);
+        exoPlayer.prepare(mediaSource); // TODO should find a way to set FfmpegAudioRenderer as in 1.X version!
         exoPlayer.setPlayWhenReady(true);
 
         playerState = Player.STATE_BUFFERING;
@@ -277,23 +328,38 @@ public class MyExoPlayer implements Player, ExoPlayer.Listener {
     }
 
     @Override
+    public void onTimelineChanged(Timeline timeline, @Nullable Object manifest, int reason) {
+
+    }
+
+    @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+    }
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+
+    }
+
+    @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         switch (playbackState) {
-            case ExoPlayer.STATE_BUFFERING:
+            case com.google.android.exoplayer2.Player.STATE_BUFFERING:
                 Log.v("ExoPlayerState", "BUFFERING");
                 break;
-            case ExoPlayer.STATE_ENDED:
+            case com.google.android.exoplayer2.Player.STATE_ENDED:
                 Log.v("ExoPlayerState", "ENDED");
                 stopUiTimer();
                 next();
                 break;
-            case ExoPlayer.STATE_IDLE:
+            case com.google.android.exoplayer2.Player.STATE_IDLE:
                 Log.v("ExoPlayerState", "IDLE");
                 break;
-            case ExoPlayer.STATE_PREPARING:
+            /*case ExoPlayer.STATE_PREPARING:
                 Log.v("ExoPlayerState", "PREPARING");
-                break;
-            case ExoPlayer.STATE_READY:
+                break;*/
+            case com.google.android.exoplayer2.Player.STATE_READY:
                 Log.v("ExoPlayerState", "READY");
                 if (playWhenReady) {
                     playerState = Player.STATE_PLAYING;
@@ -311,8 +377,13 @@ public class MyExoPlayer implements Player, ExoPlayer.Listener {
     }
 
     @Override
-    public void onPlayWhenReadyCommitted() {
-        // Nothing
+    public void onRepeatModeChanged(int repeatMode) {
+
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+
     }
 
     @Override
@@ -327,6 +398,21 @@ public class MyExoPlayer implements Player, ExoPlayer.Listener {
         //MyErrorLogger.getInstance().log("MyExoPlayer", error.getMessage());
 
         // TODO should move to next song
+    }
+
+    @Override
+    public void onPositionDiscontinuity(int reason) {
+
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+    }
+
+    @Override
+    public void onSeekProcessed() {
+
     }
 
     private void updateListenersState() {

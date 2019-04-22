@@ -482,7 +482,7 @@ public class ControllerImpl implements Controller, ServiceConnection {
         this.currentPlayer.delete();
 
         // Start new
-        currentPlayer = new MyExoPlayer();
+        currentPlayer = new MyExoPlayer(applicationContext);
         for (PlayerListener listener: current)
             currentPlayer.addPlayerListener(listener);
         currentPlayer.setService(service);

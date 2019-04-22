@@ -71,7 +71,7 @@ public class Settings {
         this.httpsPostUrl = "https://" + this.remoteHost + "/" + remoteBasePath + "/songs/";
         this.username = username;
         this.password = password;
-        this.connector = new PyMusicManagerConnector(remoteHostUrl, username, password, true); // TODO resolv SSL errors
+        this.connector = new PyMusicManagerConnector(remoteHostUrl, username, password, false); // set to true if you use a custom signed certificate for the server
 
         this.ytDownloadEnabled = ytDownloadEnabled;
         this.songUploadEnabled = songUploadEnabled;

@@ -22,7 +22,7 @@ public class YoutubeLinkActivity extends AppCompatActivity {
 
         // Download from Youtube
         Intent intent = getIntent();
-        if (intent.getAction().equals(Intent.ACTION_SEND)) {
+        if (intent != null && intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEND)) {
             String uri = intent.getStringExtra(Intent.EXTRA_TEXT);
             if (uri != null && uri.contains("youtu")) {
                 new YtDownloader().execute(uri);
