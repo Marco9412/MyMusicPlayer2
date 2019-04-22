@@ -33,6 +33,7 @@
         android:icon="@drawable/ic_report_problem_black_24dp"
         />
 
+
     <header
         android:fragment="com.panni.mymusicplayer2.view.settings.SettingsActivity$AppInfoPreferenceFragment"
         android:title="App infos"

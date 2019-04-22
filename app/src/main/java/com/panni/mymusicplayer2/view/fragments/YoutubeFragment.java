@@ -1,8 +1,5 @@
 package com.panni.mymusicplayer2.view.fragments;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -10,48 +7,38 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.panni.mymusicplayer2.R;
+import com.panni.mymusicplayer2.controller.Controller;
 import com.panni.mymusicplayer2.controller.ControllerImpl;
-import com.panni.mymusicplayer2.controller.DataCallback;
-import com.panni.mymusicplayer2.controller.fragments.FragmentController;
-import com.panni.mymusicplayer2.model.queue.objects.CustomQueueItem;
-import com.panni.mymusicplayer2.view.MainActivity;
-import com.panni.mymusicplayer2.view.adapters.SongFolderAdapter;
-import com.panni.mymusicplayer2.view.listeners.ClickOnMusicListViewListener;
-import com.panni.mymusicplayer2.youtubedl.LinkGetter;
-import com.panni.mymusicplayer2.youtubedl.NativePythonLinkGetter;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
-import objects.DbObject;
+import com.panni.mymusicplayer2.controller.DataCallbackPlaylist;
+import com.panni.mymusicplayer2.model.queue.objects.MyQueueItem;
+import com.panni.mymusicplayer2.view.adapters.CustomSongAdapter;
 
 /**
  * Created by marco on 15/05/16.
  */
-public class YoutubeFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class YoutubeFragment extends BaseFragment implements DataCallbackPlaylist, SwipeRefreshLayout.OnRefreshListener {
 
-    private FragmentController fragmentController;
+    //private FragmentController fragmentController;
 
-    private WebView webView;
+    private EditText text;
+    private Button button;
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private SongFolderAdapter adapter;
+    private Parcelable listViewState;
+
+    private CustomSongAdapter adapter;
 
 
     public static BaseFragment create() {
@@ -62,30 +49,24 @@ public class YoutubeFragment extends BaseFragment implements SwipeRefreshLayout.
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        /*AdapterView.AdapterContextMenuInfo infos = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        AdapterView.AdapterContextMenuInfo infos = (AdapterView.AdapterContextMenuInfo) menuInfo;
         MenuInflater menuInflater = getActivity().getMenuInflater();
 
-        DbObject current = adapter.getItem(infos.position);
+        MyQueueItem current = adapter.getItem(infos.position);
 
-        if (current instanceof Song) {
-            menuInflater.inflate(R.menu.longclicklistsongmenu, menu);
-            menu.setHeaderTitle(((Song) current).getTitle());
-            menu.setHeaderIcon(Utils.mimeTypeToIconResource(((Song) current).getMimeType()));
-        } else if (current instanceof Folder) {
-            menuInflater.inflate(R.menu.longclickfoldermenu, menu);
-            menu.setHeaderTitle(current.getName());
-            menu.setHeaderIcon(R.drawable.ic_menu_folder);
-        }*/
+        menuInflater.inflate(R.menu.longclickyoutubesonglistmenu, menu);
+        menu.setHeaderTitle(current.getTitle());
+        //menu.setHeaderIcon(Utils.mimeTypeToIconResource(current.getMimeType())); // TODO youtube icon!
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        /*AdapterView.AdapterContextMenuInfo infos = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        DbObject current = adapter.getItem(infos.position);
+        AdapterView.AdapterContextMenuInfo infos = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        MyQueueItem current = adapter.getItem(infos.position);
 
         switch (item.getItemId()) {
             // Folder
-            case R.id.enqueuefolder:
+            /*case R.id.enqueuefolder:
                 ControllerImpl.getInstance().enqueueFolder((Folder)current, false, false);
                 break;
             case R.id.enqueueplayfolder:
@@ -95,32 +76,32 @@ public class YoutubeFragment extends BaseFragment implements SwipeRefreshLayout.
             case R.id.downloadfolder:
                 ControllerImpl.getInstance().downloadFolder(getActivity(), (Folder)current);
                 break;
-            case R.id.getm3u: // TODO
+            case R.id.getm3u:
                 Toast.makeText(getActivity(), "Not implemented yet!", Toast.LENGTH_SHORT).show();
-                break;
+                break;*/
 
             // Song
             case R.id.enqueuesong:
-                ControllerImpl.getInstance().getCurrentQueue().enqueue((Song)current);
+                ControllerImpl.getInstance().getCurrentQueue().enqueue(current);
                 break;
             case R.id.enqueueplaysong:
-                ControllerImpl.getInstance().getCurrentQueue().enqueue((Song)current);
+                ControllerImpl.getInstance().getCurrentQueue().enqueue(current);
                 ControllerImpl.getInstance().getCurrentPlayer().play(ControllerImpl.getInstance().getCurrentQueue().length() - 1);
                 break;
-            case R.id.playextsong:
+            /*case R.id.playextsong:
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse(ControllerImpl.getInstance().getHttpSongUrl((Song) current)), "audio/*");
+                intent.setDataAndType(Uri.parse(ControllerImpl.getInstance().getHttpSongUrl(current)), "audio/*");
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getContext().startActivity(intent);
-                break;
-            case R.id.downloadsong:
-                ControllerImpl.getInstance().downloadSong(getActivity(), (Song) current);
+                break;*/
+            /*case R.id.downloadsong:
+                ControllerImpl.getInstance().downloadSong(getActivity(), current);
                 break;
             case R.id.sharesong:
                 ControllerImpl.getInstance().shareQueueItem(getActivity(), MyQueueItem.create((Song) current));
-                break;
-        }*/
+                break;*/
+        }
 
         return false;
     }
@@ -128,7 +109,6 @@ public class YoutubeFragment extends BaseFragment implements SwipeRefreshLayout.
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // TODO efficient method?
         return inflater.inflate(R.layout.youtube_fragment, container, false);
     }
 
@@ -136,84 +116,31 @@ public class YoutubeFragment extends BaseFragment implements SwipeRefreshLayout.
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        this.fragmentController = ((MainActivity)getActivity()).getFragmentController();
+        //this.fragmentController = ((MainActivity)getActivity()).getFragmentController();
 
-        this.swipeRefreshLayout = getView().findViewById(R.id.swyperefreshsearchyt);
+        this.swipeRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.ytswyperefreshsearch);
         this.swipeRefreshLayout.setOnRefreshListener(this);
 
-        this.webView = getView().findViewById(R.id.youtubeWebView);
-        this.webView.getSettings().setJavaScriptEnabled(true);
-        this.webView.loadUrl("https://www.youtube.com");
-        this.webView.setWebViewClient(new WebViewClient() {
+        ListView list = (ListView) getView().findViewById(R.id.ytsearchlistView);
+        registerForContextMenu(list);
 
+        this.text = (EditText) getView().findViewById(R.id.ytsearchtext);
+        this.text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                super.onPageStarted(view, url, favicon);
-
-                // Page loaded!
-                YoutubeFragment.this.swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-
-                // Page loaded!
-                YoutubeFragment.this.swipeRefreshLayout.setRefreshing(false);
-            }
-
-            /*@Override
-            public void onLoadResource(WebView view, String url) {
-                super.onLoadResource(view, url);
-            }*/
-
-            @Nullable
-            @Override
-            public WebResourceResponse shouldInterceptRequest(WebView view, final WebResourceRequest request) {
-               if ((request.getUrl().getHost().equals("www.youtube.com") ||
-                        request.getUrl().getHost().equals("m.youtube.com")) &&
-                        request.getUrl().getEncodedPath().equals("/watch")
-                        ) {
-                   // Trigger YT Download ?
-                   if (new NativePythonLinkGetter().available(YoutubeFragment.this.getActivity())) {
-                       getActivity().runOnUiThread(new Runnable() {
-                           @Override
-                           public void run() {
-                               Toast.makeText(getActivity(), "Loading in custom song...", Toast.LENGTH_LONG).show();
-                               ControllerImpl.getInstance().saveCustomSong(new CustomQueueItem("Test", new NativePythonLinkGetter().getLink(request.getUrl().toString())));
-                           }
-                       });
-                   }
-
-                   YoutubeFragment.this.getActivity().runOnUiThread(new Runnable() {
-                       @Override
-                       public void run() {
-                           YoutubeFragment.this.webViewBack(); // Go to previous page (disables player!)
-                       }
-                   });
-
-                   return new WebResourceResponse("text/html", "utf-8", 404, "Invalid", null, null);
-               } else {
-                   return super.shouldInterceptRequest(view, request);
-               }
-            }
-
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                if (request.getUrl().getHost().equals("www.youtube.com") ||
-                        request.getUrl().getHost().equals("m.youtube.com")) {
-                    /*if (request.getUrl().getEncodedPath().equals("/watch")) {
-                        // Trigger something!
-                        return true;
-                    }*/
-                    // Let WebView load the page
-                    return false;
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    button.performClick();
+                    return true;
                 }
+                return false;
+            }
+        });
 
-                // Load page externally
-                Intent intent = new Intent(Intent.ACTION_VIEW, request.getUrl());
-                startActivity(intent);
-                return true;
+        this.button = (Button) getView().findViewById(R.id.ytsearchbutton);
+        this.button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doYtSearch(false, true);
             }
         });
     }
@@ -222,64 +149,73 @@ public class YoutubeFragment extends BaseFragment implements SwipeRefreshLayout.
     public void onStart() {
         super.onStart();
 
-        doYoutubeSearch(false, false);
+        doYtSearch(false, false);
     }
 
     @Override
     public void onPause() {
+        ListView list = (ListView) getView().findViewById(R.id.ytsearchlistView);
+        this.listViewState = list.onSaveInstanceState();
+
         super.onPause();
     }
 
-    public boolean webViewBack() {
-        if (webView != null && webView.canGoBack()) {
-            webView.goBack();
-            return true;
-        }
-        return false;
-    }
-
-    private void doYoutubeSearch(boolean force, boolean fromButton) {
-        // TODO
+    private void doYtSearch(boolean force, boolean fromButton) {
+        this.button.setEnabled(false);
         this.swipeRefreshLayout.setRefreshing(true);
 
+        if (fromButton) listViewState = null;
 
-
-        this.swipeRefreshLayout.setRefreshing(false);
+        // If it is a normal search (button click) or lastSearch isn't initialized yet
+        if (text.getText() != null && !text.getText().toString().equals("")) {
+            ControllerImpl.getInstance().ytSearch(text.getText().toString(), YoutubeFragment.this, force);
+        } else {
+            this.button.setEnabled(true);
+            this.swipeRefreshLayout.setRefreshing(false);
+        }
     }
-
-    /*public void newData(final DbObject[] objects) {
-        if (getActivity() != null)
-            getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                button.setEnabled(true);
-                swipeRefreshLayout.setRefreshing(false);
-
-                View view = getView();
-                if (view == null) return;
-
-                ListView list = (ListView) view.findViewById(R.id.searchlistView);
-                if (list == null) return;
-
-                adapter = new SongFolderAdapter(getContext(), objects);
-                list.setAdapter(adapter);
-                list.setOnItemClickListener(new ClickOnMusicListViewListener(fragmentController, objects));
-                //list.setOnItemLongClickListener(new LongClickOnMusicListViewListener(getActivity(), objects));
-
-                if (listViewState != null)
-                    list.onRestoreInstanceState(listViewState);
-            }
-        });
-    }*/
 
     @Override
     public void onRefresh() {
-        // TODO think about it
-        this.doYoutubeSearch(true, true);
+        this.doYtSearch(true, true);
     }
 
     @Override
     public int getType() {
         return BaseFragment.TYPE_YOUTUBE;
+    }
+
+    @Override
+    public void newData(final MyQueueItem[] items) {
+        if (getActivity() != null)
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    button.setEnabled(true);
+                    swipeRefreshLayout.setRefreshing(false);
+
+                    View view = getView();
+                    if (view == null) return;
+
+                    ListView list = (ListView) view.findViewById(R.id.ytsearchlistView);
+                    if (list == null) return;
+
+                    adapter = new CustomSongAdapter(getContext(), items);
+                    list.setAdapter(adapter);
+                    list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Controller controller = ControllerImpl.getInstance();
+                            // Enqueue and play
+                            controller.getCurrentQueue().enqueue(items[position]);
+                            controller.getCurrentPlayer().play(controller.getCurrentQueue().length() - 1);
+                        }
+                    });
+                    //list.setOnItemLongClickListener(new LongClickOnMusicListViewListener(getActivity(), objects));
+
+                    if (listViewState != null)
+                        list.onRestoreInstanceState(listViewState);
+                }
+            });
     }
 }

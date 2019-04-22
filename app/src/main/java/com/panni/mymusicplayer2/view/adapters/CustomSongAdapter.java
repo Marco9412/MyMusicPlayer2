@@ -67,8 +67,11 @@ public class CustomSongAdapter extends BaseAdapter {
         //AppCompatTextView text = (AppCompatTextView) rowView.findViewById(R.id.item_test_list);
 
         MyQueueItem it = getItem(position);
-        if (it.isCustom())
+        if (it.isCustom()) {
             holder.image.setImageResource(R.drawable.ic_router_black_24dp);
+        } else if (it.isYoutube()) {
+            holder.image.setImageResource(R.drawable.ic_logo_of_youtube);
+        }
 
         holder.text.setText(it.getTitle());
 

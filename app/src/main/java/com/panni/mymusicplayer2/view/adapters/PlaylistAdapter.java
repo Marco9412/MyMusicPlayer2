@@ -157,8 +157,14 @@ public class PlaylistAdapter extends BaseAdapter {
         }
 
         holder.text.setText(it.getTitle());
-        if (it.isCustom()) holder.image.setImageResource(R.drawable.ic_router_black_24dp);
-        else holder.image.setImageResource(Utils.mimeTypeToIconResource(it.toSong().getMimeType()));
+        if (it.isCustom()) {
+            holder.image.setImageResource(R.drawable.ic_router_black_24dp);
+        } else if (it.isYoutube()) {
+            holder.image.setImageResource(R.drawable.ic_logo_of_youtube);
+        }
+        else {
+            holder.image.setImageResource(Utils.mimeTypeToIconResource(it.toSong().getMimeType()));
+        }
         if (position == current)
             holder.text.setTypeface(null, Typeface.BOLD);
         if (position == next)

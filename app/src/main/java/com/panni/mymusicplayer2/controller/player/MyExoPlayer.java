@@ -4,6 +4,7 @@ package com.panni.mymusicplayer2.controller.player;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Base64;
 import android.util.Log;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -20,10 +21,12 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.FileDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
-import com.panni.mymusicplayer2.MyMusicPlayerApplication;
 import com.panni.mymusicplayer2.controller.ControllerImpl;
 import com.panni.mymusicplayer2.controller.localsongs.LocalSongManager;
 import com.panni.mymusicplayer2.controller.localsongs.musicsource.IcyDataSource;
@@ -33,12 +36,10 @@ import com.panni.mymusicplayer2.model.queue.PlayerQueue;
 import com.panni.mymusicplayer2.model.queue.objects.MyQueueItem;
 import com.panni.mymusicplayer2.utils.Utils;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import objects.DbObject;
 import objects.Song;
 
 
@@ -250,7 +251,7 @@ public class MyExoPlayer implements Player, com.google.android.exoplayer2.Player
         }
 
         MyQueueItem currentItem = playlist.getCurrentItem();
-        Song currentSong = playlist.getCurrentSong();
+        //Song currentSong = playlist.getCurrentSong();
         MediaSource mediaSource = null;
 
         // 1. Custom Item
@@ -265,13 +266,27 @@ public class MyExoPlayer implements Player, com.google.android.exoplayer2.Player
             mediaSource = extractorMediaFactory.createMediaSource(
                     Uri.parse(playlist.getCurrentMediaQueueItem().getMedia().getContentId())
             );
+        } else if (currentItem.isYoutube()) {
+            // Using default extractor... TODO smart cache also here!
+            DefaultHttpDataSourceFactory dataSourceFactory = new DefaultHttpDataSourceFactory(System.getProperty("http.agent"));
+            dataSourceFactory.getDefaultRequestProperties().set(
+                    "Authorization",
+                    "Basic " +
+                            Base64.encodeToString(
+                                    ControllerImpl.getInstance().getCurrentSettings()
+                                            .getAuthorizationData().getBytes(),
+                                    Base64.URL_SAFE| Base64.NO_WRAP)
+            );
+            mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(Uri.parse(currentItem.getUrl())
+                    );
         } else {
             LocalSongManager lsm = LocalSongManager.getInstance();
-            if (lsm.localSongExists(currentSong)) {
+            if (lsm.localSongExists(currentItem)) {
                 // 2. Cached file
                 mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
                         .createMediaSource(
-                                Uri.fromFile(Utils.getSongFile(currentSong)
+                                Uri.fromFile(Utils.getSongFile(currentItem)
                                 )
                         );
 
@@ -292,7 +307,7 @@ public class MyExoPlayer implements Player, com.google.android.exoplayer2.Player
         }
 
         exoPlayer.seekTo(0);
-        exoPlayer.prepare(mediaSource); // TODO should find a way to set FfmpegAudioRenderer as in 1.X version!
+        exoPlayer.prepare(mediaSource);
         exoPlayer.setPlayWhenReady(true);
 
         playerState = Player.STATE_BUFFERING;

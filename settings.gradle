@@ -1,4 +1,4 @@
-include ':app'
+include ':app', ':third_party:android-google-youtube-library'
 gradle.ext.exoplayerRoot = 'third_party/ExoPlayer'
 gradle.ext.exoplayerModulePrefix = 'exoplayer-'
 apply from: new File(gradle.ext.exoplayerRoot, 'core_settings.gradle')

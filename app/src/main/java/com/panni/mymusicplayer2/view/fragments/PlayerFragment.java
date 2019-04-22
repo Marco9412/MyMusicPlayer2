@@ -47,16 +47,23 @@ public class PlayerFragment extends BaseFragment implements QueueListener, Playe
         super.onCreateContextMenu(menu, v, menuInfo);
 
         MenuInflater menuInflater = getActivity().getMenuInflater();
-        menuInflater.inflate(R.menu.longclickplaylistmenu, menu);
+        //menuInflater.inflate(R.menu.longclickplaylistmenu, menu);
 
         AdapterView.AdapterContextMenuInfo infos = (AdapterView.AdapterContextMenuInfo) menuInfo;
 
         MyQueueItem current = adapter.getItem(infos.position);
-        menu.setHeaderTitle(current.getTitle());
-        if (current instanceof CustomQueueItem) {
+        if (current.isCustom()) {
+            menuInflater.inflate(R.menu.longclickplaylistmenu, menu);
+            menu.setHeaderTitle(current.getTitle());
             menu.setHeaderIcon(R.drawable.ic_router_black_24dp);
             menu.removeItem(R.id.downloadfolder);
+        } else if (current.isYoutube()) {
+            menuInflater.inflate(R.menu.longclickplaylistmenu, menu); // TODO another xml!
+            menu.setHeaderTitle(current.getTitle());
+            menu.setHeaderIcon(R.drawable.ic_logo_of_youtube);
         } else {
+            menuInflater.inflate(R.menu.longclickplaylistmenu, menu);
+            menu.setHeaderTitle(current.getTitle());
             menu.setHeaderIcon(Utils.mimeTypeToIconResource(((SongQueueItem) current).getMimeType()));
         }
 

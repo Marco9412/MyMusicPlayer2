@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/enqueuesong"
+        android:title="Enqueue" />
+
+    <item android:id="@+id/enqueueplaysong"
+        android:title="Enqueue and Play" />
+
+    <!--
+    <item android:id="@+id/playextsong"
+        android:title="Play externally" />
+
+    <item android:id="@+id/deletesong"
+        android:title="Delete custom song" />
+
+    <item android:id="@+id/sharesong"
+        android:title="Share custom song" />
+        -->
+
+</menu>

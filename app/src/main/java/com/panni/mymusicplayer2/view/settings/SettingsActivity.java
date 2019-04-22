@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,7 +16,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -31,7 +29,6 @@ import com.panni.mymusicplayer2.controller.upload.UploadSongActivity;
 import com.panni.mymusicplayer2.controller.youtube.YoutubeLinkActivity;
 import com.panni.mymusicplayer2.settings.Settings;
 import com.panni.mymusicplayer2.utils.Utils;
-import com.panni.mymusicplayer2.youtubedl.NativePythonLinkGetter;
 
 import java.io.File;
 import java.io.IOException;
@@ -115,6 +112,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
                 if (key.equals("upload_enable"))
                     UploadSongActivity.setEnabled(context, sharedPreferences.getBoolean(key, false));
+
+                if (key.equals("enable_youtube_play")) {} // TODO  ?
+
 
                 ControllerImpl.getInstance().settingsChanged(Settings.loadSettings(context));
             }
@@ -264,25 +264,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // guidelines.
             //bindPreferenceSummaryToValue(findPreference("yt_intent_enable"));
 
-
-            findPreference("install_rootfs").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    new RootFSExtractorAsyncTask(getActivity().getApplicationContext()).execute();
-                    return true;
-                }
-            });
-            findPreference("update_rootfs").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    if (new NativePythonLinkGetter().updateModule()) {
-                        Toast.makeText(getActivity(), "Updated!", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(getActivity(), "Cannot update....", Toast.LENGTH_LONG).show();
-                    }
-                    return true;
-                }
-            });
+            //bindPreferenceSummaryToValue(findPreference("enable_youtube_play"));
+            bindPreferenceSummaryToValue(findPreference("youtube_lib_api_key"));
+            bindPreferenceSummaryToValue(findPreference("youtube_play_url"));
         }
 
         @Override
@@ -413,50 +397,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 return true;
             }
             return super.onOptionsItemSelected(item);
-        }
-    }
-
-    /*
-        NativePythonLinkGetter Enabler!!
-     */
-    public static class RootFSExtractorAsyncTask extends AsyncTask<Void, Void, Boolean> {
-
-        //private AlertDialog dialog;
-        private Context context;
-
-        public RootFSExtractorAsyncTask(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            /*dialog = new AlertDialog.Builder(context)
-                    .setTitle("Enabling feature")
-                    .setMessage("Please wait a moment...")
-                    .setCancelable(false)
-                    .create();
-            dialog.show();*/
-            Toast.makeText(context, "Enabling feature... Please wait a few minutes HERE", Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            return new NativePythonLinkGetter().setup(context);
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-
-            if (aBoolean) {
-                Toast.makeText(context, "Feature enabled!", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(context, "Feature NOT enabled! Error....", Toast.LENGTH_LONG).show();
-            }
-
-            //dialog.dismiss();
         }
     }
 

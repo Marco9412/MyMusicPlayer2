@@ -113,6 +113,8 @@ public interface Controller {
     void listFolder(Folder current, DataCallback callback, boolean forceUpdate);
 
     void search(String query, DataCallback callback, boolean forceUpdate);
+
+    void ytSearch(String query, DataCallbackPlaylist callback, boolean forceUpdate);
 // -------------------------------------------------------------------------------------------------
 
     /**

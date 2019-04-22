@@ -146,10 +146,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if (currentFragmentType == BaseFragment.TYPE_YOUTUBE &&
-                ((YoutubeFragment) this.fragmentController.getCurrent()).webViewBack()) {
+        } /*else if (currentFragmentType == BaseFragment.TYPE_YOUTUBE &&
+                ((YoutubeFragment2) this.fragmentController.getCurrent()).webViewBack()) {
             return;
-        } else if (!this.fragmentController.back()) {
+        }*/ else if (!this.fragmentController.back()) {
             super.onBackPressed();
         }
     }

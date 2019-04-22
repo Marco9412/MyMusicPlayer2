@@ -15,6 +15,7 @@ public abstract class MyQueueItem implements Comparable<MyQueueItem> {
 
     final public static int TYPE_SONG = 0;
     final public static int TYPE_CUSTOM = 1;
+    final public static int TYPE_YOUTUBE = 2;
 
     //final protected static String SEPARATOR = "MEDIA_ITEM_END";
 
@@ -52,6 +53,8 @@ public abstract class MyQueueItem implements Comparable<MyQueueItem> {
         return getType() == TYPE_CUSTOM;
     }
 
+    public boolean isYoutube() { return getType() == TYPE_YOUTUBE; }
+
     public abstract Song toSong();
 
     public abstract MediaQueueItem toMediaQueueItem();
@@ -72,6 +75,10 @@ public abstract class MyQueueItem implements Comparable<MyQueueItem> {
         return new CustomQueueItem(title, url);
     }
 
+    public static MyQueueItem createYt(String title, String url) {
+        return new YoutubeQueueItem(title, url);
+    }
+
     public static MyQueueItem fromFileFormat(BufferedReader input) {
         try {
             String tmp = input.readLine();
@@ -87,6 +94,11 @@ public abstract class MyQueueItem implements Comparable<MyQueueItem> {
                     ));
                 case CustomQueueItem.FILE_ID:
                     return create(
+                            input.readLine(),
+                            input.readLine()
+                    );
+                case YoutubeQueueItem.FILE_ID:
+                    return createYt(
                             input.readLine(),
                             input.readLine()
                     );

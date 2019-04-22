@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 
 android {
     def getGitHash = { ->
@@ -51,6 +53,13 @@ android {
             buildConfigField "java.util.Date", "BUILD_DATE", "new java.util.Date(" + System.currentTimeMillis() + "L)"
         }
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
 }
 
 dependencies {
@@ -80,4 +89,11 @@ dependencies {
 
     // okhttp
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    // Android
+    implementation project(":third_party:android-google-youtube-library")
+}
+repositories {
+    mavenCentral()
 }

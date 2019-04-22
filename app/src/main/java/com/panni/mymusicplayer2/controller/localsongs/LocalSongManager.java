@@ -158,6 +158,18 @@ public class LocalSongManager {
     }
 
     /**
+     * Tells if this song is already saved locally.
+     * (used in SongDownloaderService)
+     * @param item
+     * @return
+     */
+    public boolean localSongExists(MyQueueItem item) {
+        maybeLoad();
+
+        return this.localSongs.contains(item);
+    }
+
+    /**
      * Adds this song to LocalSongs list (this song is already downloaded)
      * @param song
      */

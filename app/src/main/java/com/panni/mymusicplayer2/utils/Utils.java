@@ -7,13 +7,14 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.util.Base64;
 import android.util.Log;
 
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.panni.mymusicplayer2.R;
 import com.panni.mymusicplayer2.controller.player.Player;
+import com.panni.mymusicplayer2.model.queue.objects.MyQueueItem;
+import com.panni.mymusicplayer2.model.queue.objects.SongQueueItem;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -26,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -129,6 +129,20 @@ public class Utils {
         String musicPath = getMusicPath();
         if (musicPath == null) return null;
         return new File(musicPath + '/' + song.getName());
+    }
+
+    @Nullable
+    public static File getSongFile(MyQueueItem item) {
+        String musicPath = getMusicPath();
+        if (musicPath == null) return null;
+
+        if (item.isYoutube()) {
+            return new File(musicPath + '/' + item.getTitle());
+        } else if (item.isCustom()) {
+            return null; // ???
+        } else { // Local
+            return new File(musicPath + '/' + ((SongQueueItem)item).getName());
+        }
     }
 
     public static String getCurrentInstance() {

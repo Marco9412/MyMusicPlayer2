@@ -34,6 +34,10 @@ public class Settings {
 
         boolean smartCache = preferences.getBoolean("smart_cache_enable", true);
 
+        boolean youtubeEnabled = preferences.getBoolean("enable_youtube_play", false);
+        String youtubeAPIKey = preferences.getString("youtube_lib_api_key", null);
+        String youtubePlayUrl = preferences.getString("youtube_play_url", null);
+
         // Check if it is correct!
         URL remote;
         try {
@@ -44,7 +48,13 @@ public class Settings {
         }
 
         return new Settings(
-                remote, prefix, user, pass, ytDownload, upload, smartCache
+                remote,
+                prefix,
+                user, pass,
+                ytDownload,
+                upload,
+                smartCache,
+                youtubeEnabled, youtubeAPIKey, youtubePlayUrl
         );
     }
 
@@ -61,10 +71,16 @@ public class Settings {
 
     private boolean smartCacheEnabled;
 
+    private boolean youtubePlayEnabled;
+    private String youtubeAPIKey;
+    private String youtubePlayUrl;
+
     private PyMusicManagerConnector connector;
 
     private Settings(URL remoteHostUrl, String remoteBasePath, String username,
-                    String password, boolean ytDownloadEnabled, boolean songUploadEnabled, boolean smartCacheEnabled) {
+                     String password, boolean ytDownloadEnabled, boolean songUploadEnabled,
+                     boolean smartCacheEnabled, boolean youtubePlayEnabled, String youtubeAPIKey,
+                     String youtubePlayUrl) {
         this.remoteHostUrl = remoteHostUrl;
         this.remoteHost = this.remoteHostUrl.getHost();
         this.songRequestUrl = "http://" + this.remoteHost + "/" + remoteBasePath + "/getsong?id=%d";
@@ -77,6 +93,10 @@ public class Settings {
         this.songUploadEnabled = songUploadEnabled;
 
         this.smartCacheEnabled = smartCacheEnabled;
+
+        this.youtubePlayEnabled = youtubePlayEnabled;
+        this.youtubeAPIKey = youtubeAPIKey;
+        this.youtubePlayUrl = youtubePlayUrl;
     }
 
     public String getRemoteHost() {
@@ -99,12 +119,22 @@ public class Settings {
         return password;
     }
 
+    public String getAuthorizationData() { return username + ':' + password; }
+
     public boolean isYtDownloadEnabled() {
         return ytDownloadEnabled;
     }
 
     public boolean isSongUploadEnabled() {
         return songUploadEnabled;
+    }
+
+    public boolean isYoutubePlayEnabled() { return youtubePlayEnabled; }
+
+    public String getYoutubeAPIKey() { return youtubeAPIKey; }
+
+    public String getYoutubePlayUrl() {
+        return youtubePlayUrl;
     }
 
     public boolean isSmartCacheEnabled() {

@@ -11,6 +11,8 @@ import android.os.IBinder;
 import android.widget.Toast;
 
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
+import com.panni.googleyoutubelibrary.YoutubeManager;
+import com.panni.googleyoutubelibrary.objects.YoutubeItem;
 import com.panni.mymusicplayer2.controller.audio.AudioFocusListener;
 import com.panni.mymusicplayer2.controller.audio.InputButtonReceiver;
 import com.panni.mymusicplayer2.controller.audio.RemoteControlClientPlayerListener;
@@ -30,10 +32,14 @@ import com.panni.mymusicplayer2.model.buffer.DataBuffer;
 import com.panni.mymusicplayer2.model.queue.PlayerQueue;
 import com.panni.mymusicplayer2.model.queue.objects.CustomQueueItem;
 import com.panni.mymusicplayer2.model.queue.objects.MyQueueItem;
+import com.panni.mymusicplayer2.model.queue.objects.YoutubeQueueItem;
 import com.panni.mymusicplayer2.settings.Settings;
 import com.panni.mymusicplayer2.utils.Utils;
 
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import objects.DbObject;
 import objects.Folder;
@@ -134,6 +140,16 @@ public class ControllerImpl implements Controller, ServiceConnection {
 
         // load last queue (or an empty one)
         this.currentQueue = new QueueManager(context).loadLastQueue();
+
+        // Youtube
+        if (
+            this.currentSettings.isYoutubePlayEnabled() &&
+            this.currentSettings.getYoutubeAPIKey() != null &&
+            !this.currentSettings.getYoutubeAPIKey().equals("")
+        ) {
+            YoutubeManager.Companion.getYoutubeManager(false)
+                    .setApiKey(this.currentSettings.getYoutubeAPIKey());
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -416,6 +432,30 @@ public class ControllerImpl implements Controller, ServiceConnection {
                 if (callback != null) {
                     PyMusicManagerConnector connector = currentSettings.getConnector();
                     callback.newData(Utils.merge(connector.searchFolder(query), connector.searchSong(query)));
+                }
+            }
+        });
+    }
+
+    @Override
+    public void ytSearch(final String query, final DataCallbackPlaylist callback, final boolean forceUpdate) {
+        Utils.runInThread(new Runnable() {
+            @Override
+            public void run() {
+                if (callback != null) {
+                    YoutubeManager ytManager = YoutubeManager.Companion.getYoutubeManager(false);
+                    List<YoutubeItem> items = ytManager.doSearch(query, 30, false);
+
+                    List<MyQueueItem> res = new ArrayList<>(items.size());
+                    for (YoutubeItem item: items) {
+                        res.add(new YoutubeQueueItem(
+                                item.getTitle(),
+                                currentSettings.getYoutubePlayUrl() + "?id=" + item.getVideoId()));
+                    }
+
+                    MyQueueItem[] r = new MyQueueItem[res.size()];
+                    res.toArray(r);
+                    callback.newData(r);
                 }
             }
         });

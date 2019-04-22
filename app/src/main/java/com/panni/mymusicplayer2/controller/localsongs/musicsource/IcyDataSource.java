@@ -4,7 +4,6 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
