@@ -3,6 +3,8 @@ package com.panni.mymusicplayer2.model.queue;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.panni.mymusicplayer2.model.queue.objects.MyQueueItem;
 
+import org.json.JSONObject;
+
 import objects.Song;
 
 /**
@@ -71,5 +73,7 @@ public interface PlayerQueue {
     void moveDown(int position);
 
     String serialize();
+
+    JSONObject serializeJSON();
 
 }

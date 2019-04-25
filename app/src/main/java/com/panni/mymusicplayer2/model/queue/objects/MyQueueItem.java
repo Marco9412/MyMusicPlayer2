@@ -3,6 +3,9 @@ package com.panni.mymusicplayer2.model.queue.objects;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.panni.mymusicplayer2.controller.ControllerImpl;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 
@@ -60,6 +63,8 @@ public abstract class MyQueueItem implements Comparable<MyQueueItem> {
 
     public abstract String toFileFormat();
 
+    public abstract JSONObject toJson();
+
     public String getShareString() {
         return "Listen to " + getTitle() + " - " + getArtist() + " on " + getUrl();
     }
@@ -92,6 +97,33 @@ public abstract class MyQueueItem implements Comparable<MyQueueItem> {
                     );
             }
         } catch (IOException ex) {
+        }
+        return null;
+    }
+
+    public static MyQueueItem fromJson(JSONObject object) {
+        try {
+            switch (object.getString("class")) {
+                case "SongQueueItem": {
+                    Song s = new Song(
+                            object.getInt("oid"),
+                            object.getString("name"),
+                            object.getInt("folder"),
+                            object.getString("title"),
+                            object.getString("artist")
+                    );
+                    return new SongQueueItem(
+                            s,
+                            ControllerImpl.getInstance().getHttpSongUrl(s)
+                    );
+                }
+                case "CustomQueueItem":
+                    return new CustomQueueItem(
+                            object.getString("title"),
+                            object.getString("url")
+                    );
+            }
+        } catch (JSONException e) {
         }
         return null;
     }

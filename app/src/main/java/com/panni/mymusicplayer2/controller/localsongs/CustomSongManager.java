@@ -6,6 +6,10 @@ import android.util.Log;
 
 import com.panni.mymusicplayer2.model.queue.objects.CustomQueueItem;
 import com.panni.mymusicplayer2.model.queue.objects.MyQueueItem;
+import com.panni.mymusicplayer2.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,7 +24,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  */
 public class CustomSongManager {
 
-    final public static String CUSTOM_SONG_FILE = "customSongs.txt";
+    final public static String CUSTOM_SONG_FILE = "customSongs.json";
 
     private static CustomSongManager instance;
 
@@ -49,17 +53,14 @@ public class CustomSongManager {
             try {
                 File customSongsFile = new File(context.getFilesDir(), CUSTOM_SONG_FILE);
                 if (customSongsFile.exists()) {
-                    BufferedReader input = new BufferedReader(new FileReader(customSongsFile));
-                    MyQueueItem tmp;
-                    while ((tmp = MyQueueItem.fromFileFormat(input)) != null)
-                        this.customSongs.add(tmp);
-                    input.close();
-
-                    //Collections.sort(this.customSongs);
+                    JSONArray songs = new JSONArray(Utils.readFullyText(customSongsFile));
+                    for (int i = 0; i < songs.length(); ++i) {
+                        this.customSongs.add(MyQueueItem.fromJson(songs.getJSONObject(i)));
+                    }
                 }
                 this.loaded = true;
                 Log.d("CustomSongManager", "Loaded " + this.customSongs.size() + " custom songs");
-            } catch (IOException ex) {
+            } catch (IOException | JSONException ex) {
                 Log.d("CustomSongManager", "Cannot load custom songs! Exception", ex);
                 ex.printStackTrace();
             }
@@ -73,9 +74,13 @@ public class CustomSongManager {
                 File customSongsFile = new File(context.getFilesDir(), CUSTOM_SONG_FILE);
                 customSongsFile.delete();
 
+                JSONArray songs = new JSONArray();
+                for (MyQueueItem item: this.customSongs) {
+                    songs.put(item.toJson());
+                }
+
                 PrintWriter pw = new PrintWriter(new FileWriter(customSongsFile), true);
-                for (MyQueueItem item : this.customSongs)
-                    pw.print(item.toFileFormat());
+                pw.print(songs.toString());
                 pw.close();
 
                 Log.d("CustomSongManager", "Written " + this.customSongs.size() + " custom songs");

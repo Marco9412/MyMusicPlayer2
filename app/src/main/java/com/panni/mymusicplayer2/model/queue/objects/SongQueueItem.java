@@ -4,6 +4,9 @@ import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaQueueItem;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import objects.Song;
 
 /**
@@ -120,5 +123,20 @@ public class SongQueueItem extends MyQueueItem {
                 //getUrl() + "\n" +
                 //mimeType + "\n" +
                 //SEPARATOR;
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject res = new JSONObject();
+        try {
+            res.put("class", "SongQueueItem");
+            res.put("oid", oid);
+            res.put("name", name);
+            res.put("folder", folder);
+            res.put("title", getTitle());
+            res.put("artist", getArtist());
+        } catch (JSONException ex) {
+        }
+        return res;
     }
 }
