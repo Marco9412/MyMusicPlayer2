@@ -134,6 +134,12 @@ public abstract class MyQueueItem implements Comparable<MyQueueItem> {
                             object.getString("title"),
                             object.getString("url")
                     );
+                case "YoutubeQueueItem":
+                    return new YoutubeQueueItem(
+                            object.getString("title"),
+                            object.getString("url")
+                    );
+
             }
         } catch (JSONException e) {
         }
