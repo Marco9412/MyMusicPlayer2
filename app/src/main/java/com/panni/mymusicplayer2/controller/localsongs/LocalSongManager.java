@@ -9,6 +9,9 @@ import com.panni.mymusicplayer2.model.queue.objects.MyQueueItem;
 import com.panni.mymusicplayer2.settings.Settings;
 import com.panni.mymusicplayer2.utils.Utils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -26,7 +29,7 @@ import pymusicmanagerconnector.PyMusicManagerConnector;
  */
 public class LocalSongManager {
 
-    final public static String LOCAL_SONGS_FILE = "localSongs.txt";
+    final public static String LOCAL_SONGS_FILE = "localSongs.json";
 
     private static LocalSongManager instance;
 
@@ -89,17 +92,15 @@ public class LocalSongManager {
             try {
                 File localSongsFile = new File(context.getFilesDir(), LOCAL_SONGS_FILE);
                 if (localSongsFile.exists()) {
-                    BufferedReader input = new BufferedReader(new FileReader(localSongsFile));
-                    MyQueueItem tmp;
-                    while ((tmp = MyQueueItem.fromFileFormat(input)) != null)
-                        this.localSongs.add(tmp);
-                    input.close();
-                    //Collections.sort(this.localSongs);
-                }
+                    JSONArray songs = new JSONArray(Utils.readFullyText(localSongsFile));
 
+                    for (int i = 0; i < songs.length(); ++i) {
+                        this.localSongs.add(MyQueueItem.fromJson(songs.getJSONObject(i)));
+                    }
+                }
                 loaded = true;
                 Log.d("LocalSongManager", "Loaded " + this.localSongs.size() + " local songs");
-            } catch (IOException ex) {
+            } catch (IOException | JSONException ex) {
                 Log.d("LocalSongManager", "Cannot load local songs! Exception", ex);
                 ex.printStackTrace();
             }
@@ -110,12 +111,16 @@ public class LocalSongManager {
         synchronized (this) {
             if (!loaded) return;
             try {
-                File customSongsFile = new File(context.getFilesDir(), LOCAL_SONGS_FILE);
-                customSongsFile.delete();
+                File localSongsFile = new File(context.getFilesDir(), LOCAL_SONGS_FILE);
+                localSongsFile.delete();
 
-                PrintWriter pw = new PrintWriter(new FileWriter(customSongsFile), true);
-                for (MyQueueItem item : this.localSongs)
-                    pw.print(item.toFileFormat());
+                JSONArray songs = new JSONArray();
+                for (MyQueueItem item: this.localSongs) {
+                    songs.put(item.toJson());
+                }
+
+                PrintWriter pw = new PrintWriter(new FileWriter(localSongsFile), true);
+                pw.print(songs.toString());
                 pw.close();
 
                 Log.d("LocalSongManager", "Written " + this.localSongs.size() + " local songs");

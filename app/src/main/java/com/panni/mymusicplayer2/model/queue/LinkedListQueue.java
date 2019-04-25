@@ -5,6 +5,10 @@ import com.panni.mymusicplayer2.controller.ControllerImpl;
 import com.panni.mymusicplayer2.model.queue.objects.MyQueueItem;
 import com.panni.mymusicplayer2.utils.Utils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -20,7 +24,10 @@ import objects.Song;
  */
 public class LinkedListQueue implements PlayerQueue {
 
-    final public static Song DUMMY_SONG = new Song(0, "bo", -1, "-----", "-----");
+    private final static Song DUMMY_SONG = new Song(0, "bo", -1, "-----", "-----");
+
+    private static final String JSON_KEY_QUEUE = "queue";
+    private static final String JSON_KEY_CURRENT_POSITION = "currentPosition";
 
     private List<MyQueueItem> queue;
     private int currentPosition;
@@ -74,6 +81,40 @@ public class LinkedListQueue implements PlayerQueue {
         this.random = new Random();
         this.listeners = new LinkedList<>();
     }
+
+    public LinkedListQueue(JSONObject sourceData) {
+        /*
+            Json format
+            {
+                'currentPosition': 10,
+                'queue': [
+                    {
+                        'class': 'SongQueueItem',
+                        'oid': ..
+                    },
+                    ...
+                ]
+            }
+         */
+        this.queue = new LinkedList<>();
+        this.shuffle = false;
+        this.repeat = true;
+        this.edited = false;
+        this.nextPosition = -1;
+        this.random = new Random();
+        this.listeners = new LinkedList<>();
+
+        try {
+            this.currentPosition = sourceData.getInt("currentPosition");
+            JSONArray fileQueue = sourceData.getJSONArray(JSON_KEY_QUEUE);
+            for (int i = 0; i < fileQueue.length(); ++i) {
+                this.queue.add(MyQueueItem.fromJson(fileQueue.getJSONObject(i)));
+            }
+        } catch (JSONException ex) {
+            // TODO
+        }
+    }
+
     @Override
     public void addPlaylistListener(QueueListener listener) {
         if (!listeners.contains(listener))
@@ -350,5 +391,23 @@ public class LinkedListQueue implements PlayerQueue {
         for (MyQueueItem item: this.queue)
             builder.append(item.toFileFormat());
         return builder.toString();
+    }
+
+    @Override
+    public JSONObject serializeJSON() {
+        JSONArray queue = new JSONArray();
+        for (MyQueueItem item: this.queue) {
+            queue.put(item.toJson());
+        }
+
+        JSONObject res = new JSONObject();
+        try {
+            res.put(JSON_KEY_QUEUE, queue);
+            res.put(JSON_KEY_CURRENT_POSITION, this.currentPosition);
+        } catch (JSONException ex) {
+            // TODO ?
+        }
+
+        return res;
     }
 }
